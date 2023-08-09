@@ -1,0 +1,28 @@
+#Velocity to Discordを導入してくれてありがとう！
+#わたしはあなたに感謝します！
+#Bugやフィードバックの報告については下記URLから。
+
+#Thanks for introducing "Velocity to Discord"!
+#Thanks for you!
+#Please use the following URL to report bugs and provide feedback.
+
+#Discord:https://discord.gg/5sqbsmqd6K
+#Github:
+
+#ここは絶対に書き換えないでください。
+#Never rewrite this section.
+configuration-version = 1.1
+
+[bot]
+#BotTokenを入力してね。
+#Please insert a BotToken.
+token = ""
+
+#ログを送信するチャンネルのIDを入力してね。
+#Enter the ID of the channel you want to send the log to.
+channel_id = 0
+
+#サーバースタート・ストップ時のメッセージを編集できます。
+#You can edit messages at server start/stop.
+start_message_text = "Server has started."
+stop_message_text = "Server has stopped."
