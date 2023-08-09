@@ -29,6 +29,11 @@ class Main @Inject constructor(
 
     @Subscribe
     fun onProxyInitialization(event: ProxyInitializeEvent) {
+        // プラグイン専用のフォルダを確認または作成
+        if (!Files.exists(dataFolder)) {
+            Files.createDirectories(dataFolder)
+        }
+
         val configFile = dataFolder.resolve("config.toml")
 
         if (Files.notExists(configFile) || checkAndUpdateConfig(configFile)) {
@@ -40,7 +45,17 @@ class Main @Inject constructor(
         val channelId = config.getLong("bot.channel_id")
         val startMessageText = config.getString("bot.start_message_text")
 
-        bot = DiscordBot(botToken, channelId)
+        try {
+            bot = DiscordBot(botToken, channelId)
+        } catch (e: Exception) {  // 一般的な例外を捕捉
+            if (botToken.isBlank()) {
+                logger.error("ERROR!! In the configuration file, enter the bot token and channel ID!")
+            } else {
+                logger.error("An unexpected error occurred during bot initialization:", e)
+            }
+            return  // Return early to avoid further processing if the bot cannot be initialized.
+        }
+
         server.eventManager.register(this, bot)
         server.eventManager.register(this, VelocityEventsListener(server, bot, logger))
 
