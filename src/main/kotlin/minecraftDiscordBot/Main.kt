@@ -1,6 +1,7 @@
 package minecraftDiscordBot
 
-import org.yaml.snakeyaml.Yaml
+import com.moandjiezana.toml.Toml
+import com.moandjiezana.toml.TomlWriter
 import com.velocitypowered.api.event.Subscribe
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent
@@ -23,40 +24,36 @@ class Main @Inject constructor(
 ) {
     private lateinit var bot: DiscordBot
 
+    // 現在の設定ファイルのバージョン
     private val currentConfigVersion = 1.1
 
     @Subscribe
     fun onProxyInitialization(event: ProxyInitializeEvent) {
+        // プラグイン専用のフォルダを確認または作成
         if (!Files.exists(dataFolder)) {
-            logger.info("Attempting to create data folder: $dataFolder")
             Files.createDirectories(dataFolder)
-            logger.info("Data folder created successfully.")
-            logger.info("Data folder path: ${dataFolder.toAbsolutePath()}")
         }
 
-        val configFile = dataFolder.resolve("config.yml")
-        logger.info("Expected path for config.yml: ${configFile.toAbsolutePath()}")
+        val configFile = dataFolder.resolve("config.toml")
 
         if (Files.notExists(configFile) || checkAndUpdateConfig(configFile)) {
-            copyDefaultConfigFromResources(configFile)
+            createDefaultConfig(configFile)
         }
 
-        val config = Yaml().load<Map<String, Any>>(Files.newBufferedReader(configFile))
-        val botToken = config["token"]?.toString() ?: ""
-        val channelId = config["channel_id"]?.toString()?.toLong() ?: 0
-        val startMessageText = config["start_message_text"]?.toString() ?: "Server has started."
-        logger.info("Loaded config content: ${config.toString()}")
-
+        val config = Toml().read(configFile.toFile())
+        val botToken = config.getString("bot.token")
+        val channelId = config.getLong("bot.channel_id")
+        val startMessageText = config.getString("bot.start_message_text")
 
         try {
-            bot = DiscordBot(botToken, channelId.toLong())
-        } catch (e: Exception) {
-            if (botToken.isEmpty()) {
+            bot = DiscordBot(botToken, channelId)
+        } catch (e: Exception) {  // 一般的な例外を捕捉
+            if (botToken.isBlank()) {
                 logger.error("ERROR!! In the configuration file, enter the bot token and channel ID!")
             } else {
                 logger.error("An unexpected error occurred during bot initialization:", e)
             }
-            return
+            return  // Return early to avoid further processing if the bot cannot be initialized.
         }
 
         server.eventManager.register(this, bot)
@@ -72,23 +69,27 @@ class Main @Inject constructor(
 
     @Subscribe
     fun onProxyShutdown(event: ProxyShutdownEvent) {
-        val configFile = dataFolder.resolve("config.yml")
-        val config = Yaml().load<Map<String, Any>>(Files.newBufferedReader(configFile))
-        val stopMessageText = config["stop_message_text"]?.toString() ?: "Server has stopped"
+        val stopMessageText = Toml().read(dataFolder.resolve("config.toml").toFile()).getString("bot.stop_message_text")
         bot.sendMessage(":octagonal_sign: **$stopMessageText**")
         bot.shutdown()
     }
 
-    private fun copyDefaultConfigFromResources(configFile: Path) {
-        if (Files.notExists(configFile)) {
-            javaClass.getResourceAsStream("/config.yml")?.use { defaultConfigStream ->
-                Files.copy(defaultConfigStream, configFile)
-            } ?: throw RuntimeException("Could not find config.yml in resources!")
-        }
+    private fun createDefaultConfig(configFile: Path) {
+        val defaultConfig = mapOf(
+            "configuration-version" to currentConfigVersion,
+            "bot" to mapOf(
+                "token" to "",
+                "channel_id" to 0,
+                "start_message_text" to "Server has started.",
+                "stop_message_text" to "Server has stopped."
+            )
+        )
+
+        TomlWriter().write(defaultConfig, configFile.toFile())
     }
 
     private fun checkAndUpdateConfig(configFile: Path): Boolean {
-        val configVersion = (Yaml().load<Map<String, Any>>(Files.newBufferedReader(configFile))["configuration-version"] as Double).toLong()
+        val configVersion = Toml().read(configFile.toFile()).getLong("configuration-version") ?: 0L
         return configVersion < currentConfigVersion
     }
 }
