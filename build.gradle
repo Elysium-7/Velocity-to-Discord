@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'elys'
-version = '1.0-SNAPSHOT'
+version = '1.1.1'
 
 repositories {
     mavenCentral()
@@ -21,16 +21,27 @@ dependencies {
     compileOnly("com.google.code.gson:gson:2.8.6")
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.0"
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0'
+    implementation("org.yaml:snakeyaml:1.26")
 }
 
 test {
     useJUnitPlatform()
 }
+jar {
+    manifest {
+        attributes 'Main-Class': 'minecraftDiscordBot.Main'
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
 
 compileKotlin {
-    kotlinOptions.jvmTarget = '1.8'
+    kotlinOptions.jvmTarget = '17'
 }
 
 compileTestKotlin {
-    kotlinOptions.jvmTarget = '1.8'
+    kotlinOptions.jvmTarget = '17'
 }

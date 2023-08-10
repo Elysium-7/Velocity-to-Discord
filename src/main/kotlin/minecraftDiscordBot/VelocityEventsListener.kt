@@ -10,7 +10,7 @@ import java.awt.Color
 class VelocityEventsListener(private val server: ProxyServer, private val bot: DiscordBot, private val logger: Logger) {
 
     @Subscribe
-    fun onServerConnected(event: ServerConnectedEvent) {
+    fun onPlayerConnect (event: ServerConnectedEvent) {
         val player = event.player.username
         val imageUrl = "https://cravatar.eu/helmavatar/${event.player.uniqueId}/128"  // Player skin head url
         bot.sendMessageWithEmbed(player, "**$player** has joined the server.", Color.GREEN, imageUrl)
