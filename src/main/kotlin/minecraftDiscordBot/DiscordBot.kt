@@ -7,11 +7,12 @@ import net.dv8tion.jda.api.OnlineStatus
 import net.dv8tion.jda.api.entities.Activity
 import java.awt.Color
 
-class DiscordBot(private val botToken: String, private val channelId: Long) {
+class DiscordBot(private val botToken: String, private val channelId: Long, onlineStatusString: OnlineStatus) {
     private val jda: JDA = JDABuilder.createDefault(botToken)
         .setActivity(Activity.playing("Minecraft"))
-        .setStatus(OnlineStatus.IDLE)
+        .setStatus(onlineStatusString)
         .build()
+
 
     fun sendMessage(message: String) {
         jda.getTextChannelById(channelId)?.sendMessage(message)?.queue()
@@ -25,6 +26,10 @@ class DiscordBot(private val botToken: String, private val channelId: Long) {
             .build()
 
         jda.getTextChannelById(channelId)?.sendMessageEmbeds(embed)?.queue()
+    }
+
+    fun sendMessageToChannel(channelId: Long, message: String) {
+        jda.getTextChannelById(channelId)?.sendMessage(message)?.queue()
     }
 
     fun shutdown() {

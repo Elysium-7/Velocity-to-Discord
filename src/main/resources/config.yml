@@ -7,15 +7,19 @@
 # Please use the following URL to report bugs and provide feedback.
 
 # Discord:https://discord.gg/5sqbsmqd6K
-# Github:
+# Github:https://github.com/Elysium-7/Velocity-to-Discord
 
 # ここは絶対に書き換えないでください。
 # Never rewrite this section.
-configuration-version: 1.1
+configuration-version: 1.2
 
 # BotTokenを入力。
 # Please insert a BotToken.
 token: ""
+
+# BOTのスタータスを設定できます。「ONLINE,IDLE,DO_NOT_DISTURB」
+# You can set the bot online status "ONLINE,IDLE,DO_NOT_DISTURB"
+online_status: ONLINE
 
 # ログを送信するチャンネルのIDを入力してね。
 # Enter the ID of the channel you want to send the log to.
