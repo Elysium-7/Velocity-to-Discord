@@ -69,7 +69,7 @@ class Main @Inject constructor(
         }
 
         server.eventManager.register(this, bot)
-        server.eventManager.register(this, VelocityEventsListener(server, bot, logger))
+        server.eventManager.register(this, VelocityEventsListener(bot))
 
         runBlocking {
             launch {
@@ -101,7 +101,7 @@ class Main @Inject constructor(
         return configVersion < currentConfigVersion
     }
 
-    fun convertToOnlineStatus(status: String): OnlineStatus {
+    private fun convertToOnlineStatus(status: String): OnlineStatus {
         return when (status.toUpperCase()) {
             "IDLE" -> OnlineStatus.IDLE
             "DO_NOT_DISTURB", "dnd", "DND" -> OnlineStatus.DO_NOT_DISTURB

@@ -18,18 +18,13 @@ class DiscordBot(private val botToken: String, private val channelId: Long, onli
         jda.getTextChannelById(channelId)?.sendMessage(message)?.queue()
     }
 
-    fun sendMessageWithEmbed(username: String, message: String, color: Color, imageUrl: String) {
+    fun sendMessageWithEmbed(message: String, color: Color, imageUrl: String) {
         val embed = EmbedBuilder()
             .setColor(color)
-            .setAuthor(username, null, imageUrl)
-            .setDescription(message)
+            .setAuthor(message, null, imageUrl)
             .build()
 
         jda.getTextChannelById(channelId)?.sendMessageEmbeds(embed)?.queue()
-    }
-
-    fun sendMessageToChannel(channelId: Long, message: String) {
-        jda.getTextChannelById(channelId)?.sendMessage(message)?.queue()
     }
 
     fun shutdown() {
